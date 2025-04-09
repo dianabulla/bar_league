@@ -1,2 +1,3 @@
 com\barleague\utils\ConexionBD.class
 com\barleague\servlets\LoginServlet.class
+com\barleague\servlets\UsuarioServlet.class

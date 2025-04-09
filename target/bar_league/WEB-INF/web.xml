@@ -12,10 +12,19 @@
     <servlet-name>LoginServlet</servlet-name>
     <servlet-class>com.barleague.servlets.LoginServlet</servlet-class>
   </servlet>
-
   <servlet-mapping>
     <servlet-name>LoginServlet</servlet-name>
     <url-pattern>/LoginServlet</url-pattern>
+  </servlet-mapping>
+
+  <!-- Registro del UsuarioServlet -->
+  <servlet>
+    <servlet-name>UsuarioServlet</servlet-name>
+    <servlet-class>com.barleague.servlets.UsuarioServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>UsuarioServlet</servlet-name>
+    <url-pattern>/UsuarioServlet</url-pattern>
   </servlet-mapping>
 
 </web-app>
