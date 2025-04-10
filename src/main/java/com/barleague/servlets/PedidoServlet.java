@@ -7,7 +7,7 @@ import javax.servlet.http.*;
 import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.Enumeration;
+import java.util.*;
 
 public class PedidoServlet extends HttpServlet {
 
@@ -15,85 +15,93 @@ public class PedidoServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String idUsuarioStr = request.getParameter("id_usuario");
+        String action = request.getParameter("action");
 
-        if (idUsuarioStr == null || idUsuarioStr.isEmpty()) {
-            response.getWriter().println("ID de usuario es requerido.");
+        if ("cambiar_estado".equals(action)) {
+            int idPedido = Integer.parseInt(request.getParameter("id_pedido"));
+            String nuevoEstado = request.getParameter("estado");
+
+            try (Connection conn = ConexionBD.conectar()) {
+                String sql = "UPDATE pedidos SET estado = ? WHERE id_pedido = ?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setString(1, nuevoEstado);
+                stmt.setInt(2, idPedido);
+                stmt.executeUpdate();
+            } catch (Exception e) {
+                e.printStackTrace();
+                response.getWriter().println("Error al actualizar estado: " + e.getMessage());
+                return;
+            }
+
+            response.sendRedirect("pedidos.jsp");
             return;
         }
 
-        int idUsuario = Integer.parseInt(idUsuarioStr);
-        boolean tieneProductos = false;
+        int idUsuario = Integer.parseInt(request.getParameter("id_usuario"));
+        Map<Integer, Integer> productosSeleccionados = new HashMap<>();
 
         try (Connection conn = ConexionBD.conectar()) {
-            conn.setAutoCommit(false);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT id_producto FROM productos");
 
-            // Insertar pedido
-            String insertPedidoSQL = "INSERT INTO pedidos (fecha, id_usuario, estado) VALUES (?, ?, ?)";
-            PreparedStatement pedidoStmt = conn.prepareStatement(insertPedidoSQL, Statement.RETURN_GENERATED_KEYS);
-            pedidoStmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
-            pedidoStmt.setInt(2, idUsuario);
-            pedidoStmt.setString(3, "pendiente");
-            pedidoStmt.executeUpdate();
+            while (rs.next()) {
+                int idProducto = rs.getInt("id_producto");
+                String param = request.getParameter("producto_" + idProducto);
 
-            ResultSet generatedKeys = pedidoStmt.getGeneratedKeys();
-            int idPedido = -1;
-            if (generatedKeys.next()) {
-                idPedido = generatedKeys.getInt(1);
-            }
-
-            // Insertar productos (solo los que tengan cantidad > 0)
-            String insertDetalleSQL = "INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, subtotal) VALUES (?, ?, ?, ?)";
-            PreparedStatement detalleStmt = conn.prepareStatement(insertDetalleSQL);
-
-            Enumeration<String> paramNames = request.getParameterNames();
-            while (paramNames.hasMoreElements()) {
-                String paramName = paramNames.nextElement();
-                if (paramName.startsWith("cantidad_")) {
-                    String idProductoStr = paramName.substring("cantidad_".length());
-                    String cantidadStr = request.getParameter(paramName);
-
-                    try {
-                        int cantidad = Integer.parseInt(cantidadStr);
-                        if (cantidad > 0) {
-                            tieneProductos = true;
-
-                            int idProducto = Integer.parseInt(idProductoStr);
-
-                            // Obtener precio del producto
-                            String sqlPrecio = "SELECT valor_unitario FROM productos WHERE id_producto = ?";
-                            PreparedStatement precioStmt = conn.prepareStatement(sqlPrecio);
-                            precioStmt.setInt(1, idProducto);
-                            ResultSet rs = precioStmt.executeQuery();
-
-                            if (rs.next()) {
-                                double precio = rs.getDouble("valor_unitario");
-                                double subtotal = cantidad * precio;
-
-                                detalleStmt.setInt(1, idPedido);
-                                detalleStmt.setInt(2, idProducto);
-                                detalleStmt.setInt(3, cantidad);
-                                detalleStmt.setDouble(4, subtotal);
-                                detalleStmt.addBatch();
-                            }
-                        }
-                    } catch (NumberFormatException ignored) {}
+                if (param != null && !param.isEmpty()) {
+                    int cantidad = Integer.parseInt(param);
+                    if (cantidad > 0) {
+                        productosSeleccionados.put(idProducto, cantidad);
+                    }
                 }
             }
 
-            if (tieneProductos) {
-                detalleStmt.executeBatch();
-                conn.commit();
-                response.sendRedirect("pedidos.jsp");
-            } else {
-                conn.rollback();
+            if (productosSeleccionados.isEmpty()) {
                 response.getWriter().println("Debes ingresar al menos un producto con cantidad mayor a 0.");
+                return;
             }
+
+            String insertPedido = "INSERT INTO pedidos (fecha, id_usuario, estado) VALUES (?, ?, ?)";
+            PreparedStatement psPedido = conn.prepareStatement(insertPedido, Statement.RETURN_GENERATED_KEYS);
+            psPedido.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+            psPedido.setInt(2, idUsuario);
+            psPedido.setString(3, "pendiente");
+            psPedido.executeUpdate();
+
+            ResultSet rsKeys = psPedido.getGeneratedKeys();
+            int idPedido = 0;
+            if (rsKeys.next()) {
+                idPedido = rsKeys.getInt(1);
+            }
+
+            String insertDetalle = "INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, subtotal) VALUES (?, ?, ?, ?)";
+            PreparedStatement psDetalle = conn.prepareStatement(insertDetalle);
+
+            for (Map.Entry<Integer, Integer> entry : productosSeleccionados.entrySet()) {
+                int idProducto = entry.getKey();
+                int cantidad = entry.getValue();
+
+                PreparedStatement psPrecio = conn.prepareStatement("SELECT valor_unitario FROM productos WHERE id_producto = ?");
+                psPrecio.setInt(1, idProducto);
+                ResultSet rsPrecio = psPrecio.executeQuery();
+                if (rsPrecio.next()) {
+                    double precio = rsPrecio.getDouble("valor_unitario");
+                    double subtotal = precio * cantidad;
+
+                    psDetalle.setInt(1, idPedido);
+                    psDetalle.setInt(2, idProducto);
+                    psDetalle.setInt(3, cantidad);
+                    psDetalle.setDouble(4, subtotal);
+                    psDetalle.addBatch();
+                }
+            }
+
+            psDetalle.executeBatch();
+            response.sendRedirect("pedidos.jsp");
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.getWriter().println("Error al registrar pedido: " + e.getMessage());
+            response.getWriter().println("Error al registrar el pedido: " + e.getMessage());
         }
     }
 }
-
