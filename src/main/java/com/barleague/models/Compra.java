@@ -3,10 +3,12 @@ package com.barleague.models;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+//entidad compras
 @Entity
 @Table(name = "compras")
 public class Compra {
 
+    //estructura
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_compra")

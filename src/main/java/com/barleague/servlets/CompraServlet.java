@@ -17,6 +17,7 @@ public class CompraServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // parsear parametros
         int idProducto = Integer.parseInt(request.getParameter("id_producto"));
         int cantidad = Integer.parseInt(request.getParameter("cantidad"));
         double valorCompra = Double.parseDouble(request.getParameter("valor_compra"));
@@ -43,6 +44,7 @@ public class CompraServlet extends HttpServlet {
             }
 
         } catch (Exception e) {
+            //imprimir error
             e.printStackTrace();
             response.getWriter().println("Error: " + e.getMessage());
         }

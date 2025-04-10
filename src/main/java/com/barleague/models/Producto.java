@@ -2,6 +2,7 @@ package com.barleague.models;
 
 import javax.persistence.*;
 
+//entidad
 @Entity
 @Table(name = "productos")
 public class Producto {
