@@ -1,0 +1,24 @@
+<hibernate-configuration>
+    <session-factory>
+
+        <!-- Conexión a MySQL -->
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/bar_league</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password">Diana2025</property>
+
+        <!-- Dialecto de MySQL -->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</property>
+
+        <!-- Mostrar las consultas por consola -->
+        <property name="hibernate.show_sql">true</property>
+
+        <!-- Formato bonito en consola -->
+        <property name="hibernate.format_sql">true</property>
+
+        <!-- Mapeo de entidades -->
+        <mapping class="com.barleague.models.Compra"/>
+        <mapping class="com.barleague.models.Producto"/>
+
+    </session-factory>
+</hibernate-configuration>
