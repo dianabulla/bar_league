@@ -58,4 +58,14 @@
   <url-pattern>/VentaServlet</url-pattern>
 </servlet-mapping>
 
+<!-- Registro compra-->
+<servlet>
+  <servlet-name>CompraServlet</servlet-name>
+  <servlet-class>com.barleague.servlets.CompraServlet</servlet-class>
+</servlet>
+<servlet-mapping>
+  <servlet-name>CompraServlet</servlet-name>
+  <url-pattern>/CompraServlet</url-pattern>
+</servlet-mapping>
+
 </web-app>
