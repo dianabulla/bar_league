@@ -2,4 +2,5 @@ com\barleague\servlets\PedidoServlet.class
 com\barleague\utils\ConexionBD.class
 com\barleague\servlets\LoginServlet.class
 com\barleague\servlets\ProductoServlet.class
+com\barleague\servlets\VentaServlet.class
 com\barleague\servlets\UsuarioServlet.class

@@ -82,7 +82,11 @@
                 out.println("</form>");
                 out.println("</td>");
 
-                out.println("<td><a href='pedidos.jsp?detalle=" + idPedido + "'>Detalle</a></td>");
+                out.println("<td>");
+                    out.println("<a href='pedidos.jsp?detalle=" + idPedido + "'>Detalle</a> | ");
+                    out.println("<a href='VentaServlet?id=" + idPedido + "'>Registrar Venta</a>");
+                    out.println("</td>");
+                    
                 out.println("</tr>");
             }
         } catch (Exception e) {
@@ -130,7 +134,7 @@
             }
         %>
     </table>
-    
+
 <% } %>
 
 </body>
