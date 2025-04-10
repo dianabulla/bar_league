@@ -49,6 +49,8 @@
     <div class="menu">
         <a href="usuarios.jsp">👥 Gestión de Usuarios</a>
         <a href="productos.jsp">🍔 Gestión de Productos</a>
+        <a href="pedidos.jsp"> Gestión de Pedidos</a>
+        <a href="compras.jsp"> Gestión de Compras (GA7-220501096-AA3-EV01)</a>
     </div>
 <% } else { %>
     <h2>No has iniciado sesión.</h2>
