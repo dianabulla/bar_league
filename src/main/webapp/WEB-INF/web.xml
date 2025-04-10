@@ -27,4 +27,14 @@
     <url-pattern>/UsuarioServlet</url-pattern>
   </servlet-mapping>
 
+  <!-- Registro del ProductoServlet -->
+  <servlet>
+    <servlet-name>ProductoServlet</servlet-name>
+    <servlet-class>com.barleague.servlets.ProductoServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ProductoServlet</servlet-name>
+    <url-pattern>/ProductoServlet</url-pattern>
+  </servlet-mapping>
+
 </web-app>
