@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import qs from 'qs'; // Asegúrate de tenerlo instalado con "npm install qs"
 
 export default function Productos() {
   const [productos, setProductos] = useState([]);
@@ -32,14 +33,21 @@ export default function Productos() {
     e.preventDefault();
     try {
       const url = 'http://localhost:8080/bar_league/ProductoServlet';
-      const form = new FormData();
-      form.append('codigo', formData.codigo);
-      form.append('nombre', formData.nombre);
-      form.append('descripcion', formData.descripcion);
-      form.append('valor_unitario', formData.valor_unitario);
-      form.append('action', formData.id_producto ? 'update' : 'insert');
-      if (formData.id_producto) form.append('id_producto', formData.id_producto);
-      await axios.post(url, form);
+      const data = {
+        codigo: formData.codigo,
+        nombre: formData.nombre,
+        descripcion: formData.descripcion,
+        valor_unitario: formData.valor_unitario,
+        action: formData.id_producto ? 'update' : 'insert'
+      };
+      if (formData.id_producto) data.id_producto = formData.id_producto;
+
+      await axios.post(url, qs.stringify(data), {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      });
+
       setFormData({ id_producto: null, codigo: '', nombre: '', descripcion: '', valor_unitario: '' });
       obtenerProductos();
     } catch (err) {
