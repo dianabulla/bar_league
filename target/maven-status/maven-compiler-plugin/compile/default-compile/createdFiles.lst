@@ -1,11 +1,12 @@
 com\barleague\servlets\PedidoServlet.class
-com\barleague\models\Compra.class
 com\barleague\utils\HibernateUtil.class
+com\barleague\servlets\CompraServlet.class
+com\barleague\servlets\LoginServlet.class
+com\barleague\models\Compra.class
 com\barleague\servlets\ProductoServlet.class
 com\barleague\servlets\VentaServlet.class
 com\barleague\models\Producto.class
+com\barleague\utils\CorsFilter.class
 com\barleague\dao\CompraDAO.class
-com\barleague\servlets\CompraServlet.class
 com\barleague\utils\ConexionBD.class
-com\barleague\servlets\LoginServlet.class
 com\barleague\servlets\UsuarioServlet.class
